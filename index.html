@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <title>Emoji Text Translator</title>
+
+        <style>
+            :root {
+                color-scheme: light dark;
+
+                --background: #f4f4f5;
+                --card: #ffffff;
+                --text: #18181b;
+                --muted: #71717a;
+                --border: #d4d4d8;
+                --input: #fafafa;
+                --button: #18181b;
+                --button-text: #ffffff;
+                --accent: #e4e4e7;
+                --gradient-from: #4f46e5;
+                --gradient-to: #db2777;
+            }
+
+            :root[data-theme="light"] {
+                color-scheme: light;
+            }
+
+            :root[data-theme="dark"] {
+                color-scheme: dark;
+
+                --background: #18181b;
+                --card: #27272a;
+                --text: #f4f4f5;
+                --muted: #a1a1aa;
+                --border: #3f3f46;
+                --input: #18181b;
+                --button: #f4f4f5;
+                --button-text: #18181b;
+                --accent: #3f3f46;
+                --gradient-from: #818cf8;
+                --gradient-to: #f472b6;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                :root:not([data-theme="light"]) {
+                    --background: #18181b;
+                    --card: #27272a;
+                    --text: #f4f4f5;
+                    --muted: #a1a1aa;
+                    --border: #3f3f46;
+                    --input: #18181b;
+                    --button: #f4f4f5;
+                    --button-text: #18181b;
+                    --accent: #3f3f46;
+                    --gradient-from: #818cf8;
+                    --gradient-to: #f472b6;
+                }
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+
+                background: var(--background);
+                color: var(--text);
+
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    Helvetica, Arial, sans-serif;
+
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+
+                transition:
+                    background-color 0.2s ease,
+                    color 0.2s ease;
+            }
+
+            .translator {
+                width: 100%;
+                max-width: 760px;
+                padding: 28px;
+
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 18px;
+
+                box-shadow:
+                    0 1px 2px rgba(0, 0, 0, 0.04),
+                    0 12px 32px rgba(0, 0, 0, 0.08);
+
+                transition:
+                    background-color 0.2s ease,
+                    border-color 0.2s ease;
+            }
+
+            :root[data-theme="dark"] .translator {
+                box-shadow:
+                    0 1px 2px rgba(0, 0, 0, 0.2),
+                    0 12px 32px rgba(0, 0, 0, 0.35);
+            }
+
+            @media (prefers-color-scheme: dark) {
+                :root:not([data-theme="light"]) .translator {
+                    box-shadow:
+                        0 1px 2px rgba(0, 0, 0, 0.2),
+                        0 12px 32px rgba(0, 0, 0, 0.35);
+                }
+            }
+
+            h1 {
+                margin: 0 0 8px;
+                font-size: 30px;
+                font-weight: 800;
+                line-height: 1.15;
+                letter-spacing: -0.03em;
+            }
+
+            @supports (background-clip: text) or
+                (-webkit-background-clip: text) {
+                h1 {
+                    background-image: linear-gradient(
+                        100deg,
+                        var(--gradient-from),
+                        var(--gradient-to)
+                    );
+
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
+                }
+            }
+
+            .description {
+                margin: 0 0 24px;
+                color: var(--muted);
+                line-height: 1.5;
+            }
+
+            .selector-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+
+            .style-selector {
+                margin-bottom: 24px;
+            }
+
+            .style-selector label {
+                display: block;
+                margin-bottom: 8px;
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+            select {
+                width: 100%;
+                padding: 12px 14px;
+
+                border: 1px solid var(--border);
+                border-radius: 10px;
+
+                background: var(--input);
+                color: var(--text);
+
+                font: inherit;
+                cursor: pointer;
+                outline: none;
+
+                height: 40px;
+
+                transition:
+                    background-color 0.2s ease,
+                    color 0.2s ease,
+                    border-color 0.2s ease,
+                    box-shadow 0.15s ease;
+            }
+
+            select:focus {
+                border-color: var(--gradient-from);
+                box-shadow: 0 0 0 3px
+                    color-mix(in srgb, var(--gradient-from) 18%, transparent);
+            }
+
+            .field {
+                margin-bottom: 18px;
+            }
+
+            .field-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 8px;
+            }
+
+            .field-label {
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+            .counters {
+                color: var(--muted);
+                font-size: 13px;
+                font-variant-numeric: tabular-nums;
+            }
+
+            .textarea-wrapper {
+                position: relative;
+            }
+
+            textarea {
+                width: 100%;
+                min-height: 180px;
+                resize: vertical;
+
+                padding: 16px;
+                padding-right: 90px;
+
+                border: 1px solid var(--border);
+                border-radius: 12px;
+
+                background: var(--input);
+                color: var(--text);
+
+                font: inherit;
+                font-size: 16px;
+                line-height: 1.5;
+
+                outline: none;
+
+                transition:
+                    background-color 0.2s ease,
+                    color 0.2s ease,
+                    border-color 0.2s ease,
+                    box-shadow 0.15s ease;
+            }
+
+            textarea:focus {
+                border-color: var(--gradient-from);
+                box-shadow: 0 0 0 3px
+                    color-mix(in srgb, var(--gradient-from) 18%, transparent);
+            }
+
+            textarea::placeholder {
+                color: var(--muted);
+            }
+
+            .copy-button {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+
+                padding: 7px 11px;
+
+                border: 0;
+                border-radius: 8px;
+
+                background: var(--button);
+                background-image: linear-gradient(
+                    135deg,
+                    var(--gradient-from),
+                    var(--gradient-to)
+                );
+
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+
+                color: var(--button-text);
+
+                font: inherit;
+                font-size: 13px;
+                font-weight: 600;
+
+                cursor: pointer;
+
+                transition:
+                    opacity 0.15s ease,
+                    transform 0.15s ease;
+            }
+
+            .copy-button:hover {
+                opacity: 0.85;
+            }
+
+            .copy-button:active {
+                transform: scale(0.97);
+            }
+
+            .arrow {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                width: 38px;
+                height: 38px;
+                margin: 4px auto 18px;
+
+                border-radius: 50%;
+
+                background: var(--accent);
+                background-image: linear-gradient(
+                    135deg,
+                    var(--gradient-from),
+                    var(--gradient-to)
+                );
+
+                color: var(--button-text);
+
+                font-size: 20px;
+
+                user-select: none;
+            }
+
+            .hint {
+                margin-top: 8px;
+                color: var(--muted);
+                font-size: 13px;
+                height: 20px;
+            }
+
+            .toast {
+                position: fixed;
+                left: 50%;
+                bottom: 24px;
+                z-index: 10;
+
+                transform: translate(-50%, 8px);
+
+                padding: 10px 18px;
+
+                border-radius: 10px;
+
+                background: var(--button);
+                color: var(--button-text);
+
+                font-size: 14px;
+                font-weight: 600;
+
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+                opacity: 0;
+                pointer-events: none;
+
+                transition:
+                    opacity 0.2s ease,
+                    transform 0.2s ease,
+                    background-color 0.2s ease,
+                    color 0.2s ease;
+            }
+
+            .toast.visible {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+
+            @media (max-width: 600px) {
+                body {
+                    padding: 12px;
+                }
+
+                .translator {
+                    padding: 20px;
+                    border-radius: 14px;
+                }
+
+                h1 {
+                    font-size: 26px;
+                }
+
+                textarea {
+                    min-height: 150px;
+                }
+
+                .selector-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <main class="translator">
+            <h1>Emoji Text Translator</h1>
+
+            <p class="description">
+                Type or paste text into either field. Both fields stay editable
+                and automatically translate between normal and styled text.
+            </p>
+
+            <div class="style-selector">
+                <div class="selector-grid">
+                    <div>
+                        <label for="style">Text style</label>
+
+                        <select id="style">
+                            <option value="squared">🅰 Squared Letters</option>
+                            <option value="double">𝔸 Double-Struck</option>
+                        </select>
+
+                        <div class="hint" id="styleHint"></div>
+                    </div>
+
+                    <div>
+                        <label for="theme">Theme</label>
+
+                        <select id="theme">
+                            <option value="system">🌗 System</option>
+                            <option value="light">☀️ Light</option>
+                            <option value="dark">🌙 Dark</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="field-header">
+                    <span class="field-label">Normal text</span>
+
+                    <span class="counters" id="normalCounters"
+                        >0 characters · 0 words</span
+                    >
+                </div>
+
+                <div class="textarea-wrapper">
+                    <textarea
+                        id="normalText"
+                        placeholder="Type normal text here..."
+                        spellcheck="false"
+                    ></textarea>
+
+                    <button
+                        class="copy-button"
+                        type="button"
+                        data-copy="normalText"
+                    >
+                        Copy
+                    </button>
+                </div>
+            </div>
+
+            <div class="arrow" aria-hidden="true">↕</div>
+
+            <div class="field">
+                <div class="field-header">
+                    <span class="field-label">Styled text</span>
+
+                    <span class="counters" id="styledCounters"
+                        >0 characters · 0 words</span
+                    >
+                </div>
+
+                <div class="textarea-wrapper">
+                    <textarea
+                        id="styledText"
+                        placeholder="Or type styled text here..."
+                        spellcheck="false"
+                    ></textarea>
+
+                    <button
+                        class="copy-button"
+                        type="button"
+                        data-copy="styledText"
+                    >
+                        Copy
+                    </button>
+                </div>
+            </div>
+
+            <div class="hint" id="shortcutHint"></div>
+        </main>
+
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+        <script>
+            const normalText = document.getElementById("normalText");
+            const styledText = document.getElementById("styledText");
+            const style = document.getElementById("style");
+            const styleHint = document.getElementById("styleHint");
+            const normalCounters = document.getElementById("normalCounters");
+            const styledCounters = document.getElementById("styledCounters");
+            const theme = document.getElementById("theme");
+            const toast = document.getElementById("toast");
+            const shortcutHint = document.getElementById("shortcutHint");
+
+            const squaredLetters = {
+                A: "🅰",
+                B: "🅱",
+                C: "🅲",
+                D: "🅳",
+                E: "🅴",
+                F: "🅵",
+                G: "🅶",
+                H: "🅷",
+                I: "🅸",
+                J: "🅹",
+                K: "🅺",
+                L: "🅻",
+                M: "🅼",
+                N: "🅽",
+                O: "🅾",
+                P: "🅿",
+                Q: "🆀",
+                R: "🆁",
+                S: "🆂",
+                T: "🆃",
+                U: "🆄",
+                V: "🆅",
+                W: "🆆",
+                X: "🆇",
+                Y: "🆈",
+                Z: "🆉",
+            };
+
+            const doubleStruckUpper = {
+                A: "𝔸",
+                B: "𝔹",
+                C: "ℂ",
+                D: "𝔻",
+                E: "𝔼",
+                F: "𝔽",
+                G: "𝔾",
+                H: "ℍ",
+                I: "𝕀",
+                J: "𝕁",
+                K: "𝕂",
+                L: "𝕃",
+                M: "𝕄",
+                N: "ℕ",
+                O: "𝕆",
+                P: "ℙ",
+                Q: "ℚ",
+                R: "ℝ",
+                S: "𝕊",
+                T: "𝕋",
+                U: "𝕌",
+                V: "𝕍",
+                W: "𝕎",
+                X: "𝕏",
+                Y: "𝕐",
+                Z: "ℤ",
+            };
+
+            const doubleStruckLower = {
+                a: "𝕒",
+                b: "𝕓",
+                c: "𝕔",
+                d: "𝕕",
+                e: "𝕖",
+                f: "𝕗",
+                g: "𝕘",
+                h: "𝕙",
+                i: "𝕚",
+                j: "𝕛",
+                k: "𝕜",
+                l: "𝕝",
+                m: "𝕞",
+                n: "𝕟",
+                o: "𝕠",
+                p: "𝕡",
+                q: "𝕢",
+                r: "𝕣",
+                s: "𝕤",
+                t: "𝕥",
+                u: "𝕦",
+                v: "𝕧",
+                w: "𝕨",
+                x: "𝕩",
+                y: "𝕪",
+                z: "𝕫",
+            };
+
+            function createReverseMap(map) {
+                const reverse = {};
+
+                for (const [normal, styled] of Object.entries(map)) {
+                    reverse[styled] = normal;
+                }
+
+                return reverse;
+            }
+
+            const squaredReverse = createReverseMap(squaredLetters);
+            const doubleUpperReverse = createReverseMap(doubleStruckUpper);
+            const doubleLowerReverse = createReverseMap(doubleStruckLower);
+
+            function translateForward(text) {
+                if (style.value === "squared") {
+                    return [...text]
+                        .map((character) => {
+                            const upper = character.toUpperCase();
+                            return squaredLetters[upper] || character;
+                        })
+                        .join("");
+                }
+
+                if (style.value === "double") {
+                    return [...text]
+                        .map(
+                            (character) =>
+                                doubleStruckUpper[character] ||
+                                doubleStruckLower[character] ||
+                                character,
+                        )
+                        .join("");
+                }
+
+                return text;
+            }
+
+            function translateReverse(text) {
+                let result = "";
+
+                for (const character of [...text]) {
+                    if (style.value === "squared") {
+                        result += squaredReverse[character] || character;
+                    } else if (style.value === "double") {
+                        result +=
+                            doubleUpperReverse[character] ||
+                            doubleLowerReverse[character] ||
+                            character;
+                    } else {
+                        result += character;
+                    }
+                }
+
+                return result;
+            }
+
+            function loadStored(key) {
+                try {
+                    return localStorage.getItem(key);
+                } catch {
+                    return null;
+                }
+            }
+
+            function saveStored(key, value) {
+                try {
+                    localStorage.setItem(key, value);
+                } catch {
+                    // Storage can be unavailable (e.g. blocked cookies);
+                    // state simply won't persist.
+                }
+            }
+
+            function restoreState() {
+                const savedStyle = loadStored("emoji-text:style");
+
+                if (
+                    savedStyle &&
+                    [...style.options].some(
+                        (option) => option.value === savedStyle,
+                    )
+                ) {
+                    style.value = savedStyle;
+                }
+
+                const savedTheme = loadStored("emoji-text:theme");
+
+                if (
+                    savedTheme &&
+                    [...theme.options].some(
+                        (option) => option.value === savedTheme,
+                    )
+                ) {
+                    theme.value = savedTheme;
+                }
+
+                applyTheme();
+
+                const savedText = loadStored("emoji-text:text");
+
+                if (savedText) {
+                    normalText.value = savedText;
+                    styledText.value = translateForward(normalText.value);
+                }
+            }
+
+            let updating = false;
+
+            normalText.addEventListener("input", () => {
+                if (updating) return;
+
+                updating = true;
+                styledText.value = translateForward(normalText.value);
+                updating = false;
+
+                updateCounters();
+                saveStored("emoji-text:text", normalText.value);
+            });
+
+            styledText.addEventListener("input", () => {
+                if (updating) return;
+
+                updating = true;
+                normalText.value = translateReverse(styledText.value);
+                updating = false;
+
+                updateCounters();
+                saveStored("emoji-text:text", normalText.value);
+            });
+
+            style.addEventListener("change", () => {
+                styledText.value = translateForward(normalText.value);
+                updateHint();
+                updateCounters();
+                saveStored("emoji-text:style", style.value);
+            });
+
+            function updateHint() {
+                styleHint.textContent =
+                    style.value === "squared"
+                        ? "Example: girl → 🅶🅸🆁🅻"
+                        : "Example: girl → 𝕘𝕚𝕣𝕝";
+            }
+
+            function updateShortcutHint() {
+                const isMac = /Mac/i.test(navigator.platform);
+
+                shortcutHint.textContent = isMac
+                    ? "Tip: ⌃⌘C or Ctrl+Enter copies the styled text"
+                    : "Tip: Ctrl+Enter copies the styled text";
+            }
+
+            function countCharacters(text) {
+                return [...text].length;
+            }
+
+            function countWords(text) {
+                return (text.match(/\S+/g) || []).length;
+            }
+
+            function formatCounts(text) {
+                const characters = countCharacters(text);
+                const words = countWords(text);
+
+                return `${characters} ${
+                    characters === 1 ? "character" : "characters"
+                } · ${words} ${words === 1 ? "word" : "words"}`;
+            }
+
+            function updateCounters() {
+                normalCounters.textContent = formatCounts(normalText.value);
+                styledCounters.textContent = formatCounts(styledText.value);
+            }
+
+            const fieldNames = {
+                normalText: "Normal text",
+                styledText: "Styled text",
+            };
+
+            let toastTimer;
+
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add("visible");
+
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove("visible");
+                }, 2000);
+            }
+
+            async function copyField(id) {
+                const target = document.getElementById(id);
+
+                if (!target.value) {
+                    showToast("Nothing to copy");
+                    return false;
+                }
+
+                try {
+                    await navigator.clipboard.writeText(target.value);
+                } catch (error) {
+                    target.focus();
+                    target.select();
+                    document.execCommand("copy");
+                }
+
+                showToast(`${fieldNames[id]} copied`);
+
+                return true;
+            }
+
+            document.querySelectorAll("[data-copy]").forEach((button) => {
+                const originalText = button.textContent;
+
+                button.addEventListener("click", async () => {
+                    const copied = await copyField(button.dataset.copy);
+
+                    if (!copied) return;
+
+                    button.textContent = "Copied!";
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 1200);
+                });
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.repeat) return;
+
+                const isEnterCopy =
+                    event.key === "Enter" &&
+                    (event.ctrlKey || event.metaKey);
+                const isStyledCopy =
+                    event.key.toLowerCase() === "c" &&
+                    event.ctrlKey &&
+                    event.metaKey;
+
+                if (!isEnterCopy && !isStyledCopy) return;
+
+                event.preventDefault();
+                copyField("styledText");
+            });
+
+            function applyTheme() {
+                if (theme.value === "system") {
+                    delete document.documentElement.dataset.theme;
+                } else {
+                    document.documentElement.dataset.theme = theme.value;
+                }
+            }
+
+            theme.addEventListener("change", () => {
+                applyTheme();
+                saveStored("emoji-text:theme", theme.value);
+            });
+
+            restoreState();
+            updateHint();
+            updateCounters();
+            updateShortcutHint();
+        </script>
+    </body>
+</html>
