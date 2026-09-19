@@ -379,6 +379,203 @@
                 height: 20px;
             }
 
+            .history-toggle {
+                margin-top: 20px;
+                padding: 8px 14px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: transparent;
+                color: var(--text);
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition:
+                    background-color 0.15s ease,
+                    color 0.15s ease;
+            }
+
+            .history-toggle:hover {
+                background: var(--button);
+                color: var(--button-text);
+            }
+
+            .history-toggle:focus-visible {
+                outline: 2px solid var(--gradient-from);
+                outline-offset: 2px;
+            }
+
+            .history-dialog {
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                padding: 20px;
+                max-width: 460px;
+                width: calc(100vw - 40px);
+                max-height: min(70vh, 560px);
+                background: var(--card);
+                color: var(--text);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+            }
+
+            .history-dialog::backdrop {
+                background: rgba(0, 0, 0, 0.4);
+            }
+
+            .history-dialog-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+
+            .history-dialog-header h2 {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 700;
+            }
+
+            .history-dialog-footer {
+                display: flex;
+                justify-content: flex-end;
+                border-top: 1px solid var(--border);
+                padding-top: 14px;
+            }
+
+            .close-dialog {
+                padding: 4px 8px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                background: transparent;
+                color: var(--muted);
+                font-size: 14px;
+                line-height: 1;
+                cursor: pointer;
+                transition: color 0.15s ease, border-color 0.15s ease;
+            }
+
+            .close-dialog:hover {
+                color: var(--text);
+                border-color: var(--text);
+            }
+
+            .close-dialog:focus-visible {
+                outline: 2px solid var(--gradient-from);
+                outline-offset: 2px;
+            }
+
+            .clear-history {
+                padding: 6px 12px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                background: transparent;
+                color: var(--muted);
+                font-size: 12px;
+                cursor: pointer;
+                transition: color 0.15s ease, border-color 0.15s ease;
+            }
+
+            .clear-history:hover {
+                color: var(--text);
+                border-color: var(--text);
+            }
+
+            .clear-history:focus-visible {
+                outline: 2px solid var(--gradient-from);
+                outline-offset: 2px;
+            }
+
+            .history-empty {
+                margin: 0;
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .history-dialog-body {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                overflow-y: auto;
+                max-height: calc(70vh - 100px);
+                min-height: 0;
+                margin-bottom: 14px;
+            }
+
+            .history-list {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                min-height: 0;
+            }
+
+            .history-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 14px;
+                border-radius: 10px;
+                border: 1px solid var(--border);
+                background: var(--card);
+            }
+
+            .history-item-body {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .history-styled {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 15px;
+                font-weight: 600;
+            }
+
+            .history-normal {
+                margin-top: 2px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .history-meta {
+                margin-top: 4px;
+                color: var(--muted);
+                font-size: 11px;
+            }
+
+            .history-item-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                flex-shrink: 0;
+            }
+
+            .history-item-actions button {
+                padding: 6px 12px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                background: transparent;
+                color: var(--text);
+                font-size: 12px;
+                cursor: pointer;
+                transition: background-color 0.15s ease, color 0.15s ease;
+            }
+
+            .history-item-actions button:hover {
+                background: var(--button);
+                color: var(--button-text);
+            }
+
+            .history-item-actions button:focus-visible {
+                outline: 2px solid var(--gradient-from);
+                outline-offset: 2px;
+            }
+
             .toast {
                 position: fixed;
                 left: 50%;
@@ -518,9 +715,56 @@
             </div>
 
             <div class="hint" id="shortcutHint"></div>
+
+            <button
+                class="history-toggle"
+                id="openHistory"
+                type="button"
+                aria-haspopup="dialog"
+            >
+                🕘 History
+            </button>
         </main>
 
         <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+        <dialog class="history-dialog" id="historyDialog">
+            <div class="history-dialog-header">
+                <h2 id="historyHeading">History</h2>
+
+                <button
+                    class="close-dialog"
+                    id="closeHistory"
+                    type="button"
+                    aria-label="Close history"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <div class="history-dialog-body">
+                <p
+                    class="history-empty"
+                    id="historyEmpty"
+                    role="status"
+                    aria-live="polite"
+                >
+                    No history yet. Copy some styled text to add it here.
+                </p>
+
+                <ul class="history-list" id="historyList"></ul>
+            </div>
+
+            <div class="history-dialog-footer">
+                <button
+                    class="clear-history"
+                    id="clearHistory"
+                    type="button"
+                >
+                    Clear history
+                </button>
+            </div>
+        </dialog>
 
         <script>
             const normalText = document.getElementById("normalText");
@@ -532,6 +776,12 @@
             const themeToggle = document.getElementById("themeToggle");
             const toast = document.getElementById("toast");
             const shortcutHint = document.getElementById("shortcutHint");
+            const historyList = document.getElementById("historyList");
+            const historyEmpty = document.getElementById("historyEmpty");
+            const clearHistory = document.getElementById("clearHistory");
+            const historyDialog = document.getElementById("historyDialog");
+            const openHistory = document.getElementById("openHistory");
+            const closeHistory = document.getElementById("closeHistory");
 
             const squaredLetters = {
                 A: "🅰",
@@ -694,6 +944,199 @@
                 }
             }
 
+            const HISTORY_KEY = "emoji-text:history";
+            const MAX_HISTORY = 20;
+
+            const historyStyleNames = {
+                squared: "Squared",
+                double: "Double-Struck",
+            };
+
+            let historyEntries = [];
+
+            function loadHistory() {
+                try {
+                    historyEntries = JSON.parse(
+                        localStorage.getItem(HISTORY_KEY),
+                    );
+                } catch {
+                    historyEntries = null;
+                }
+
+                if (!Array.isArray(historyEntries)) {
+                    historyEntries = [];
+                }
+            }
+
+            function saveHistory() {
+                saveStored(HISTORY_KEY, JSON.stringify(historyEntries));
+            }
+
+            function addHistoryEntry(entry) {
+                // Avoid consecutive duplicates (e.g. copying the same output twice).
+                if (historyEntries[0]?.styled === entry.styled) {
+                    return;
+                }
+
+                historyEntries.unshift(entry);
+
+                if (historyEntries.length > MAX_HISTORY) {
+                    historyEntries.length = MAX_HISTORY;
+                }
+
+                saveHistory();
+                renderHistory();
+            }
+
+            function formatTimestamp(timestamp) {
+                const elapsed = Date.now() - timestamp;
+
+                if (elapsed < 60_000) return "just now";
+                if (elapsed < 3_600_000) {
+                    return `${Math.floor(elapsed / 60_000)} min ago`;
+                }
+                if (elapsed < 86_400_000) {
+                    return `${Math.floor(elapsed / 3_600_000)} h ago`;
+                }
+
+                return new Date(timestamp).toLocaleString();
+            }
+
+            function escapeHtml(text) {
+                return String(text).replace(/[&<>"']/g, (character) => {
+                    switch (character) {
+                        case "&":
+                            return "&amp;";
+                        case "<":
+                            return "&lt;";
+                        case ">":
+                            return "&gt;";
+                        case '"':
+                            return "&quot;";
+                        default:
+                            return "&#39;";
+                    }
+                });
+            }
+
+            function renderHistory() {
+                if (historyEntries.length === 0) {
+                    historyEmpty.textContent =
+                        "No history yet. Copy some styled text to add it here.";
+                    historyList.innerHTML = "";
+                    return;
+                }
+
+                historyEmpty.textContent = "";
+
+                historyList.innerHTML = historyEntries
+                    .map((entry, index) => {
+                        const styleName = historyStyleNames[entry.style];
+                        const time = formatTimestamp(entry.timestamp);
+
+                        return `
+                            <li class="history-item" data-index="${index}">
+                                <div class="history-item-body">
+                                    <div class="history-styled" title="Styled text">${escapeHtml(
+                                        entry.styled,
+                                    )}</div>
+                                    <div class="history-normal" title="Normal text">${escapeHtml(
+                                        entry.normal,
+                                    )}</div>
+                                    <div class="history-meta">${
+                                        styleName ? styleName + " · " : ""
+                                    }${time}</div>
+                                </div>
+                                <div class="history-item-actions">
+                                    <button type="button" data-action="copy">
+                                        Copy
+                                    </button>
+                                    <button type="button" data-action="use">
+                                        Use
+                                    </button>
+                                    <button type="button" data-action="delete">
+                                        Delete
+                                    </button>
+                                </div>
+                            </li>`;
+                    })
+                    .join("");
+            }
+
+            async function writeClipboard(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch (error) {
+                    const helper = document.createElement("textarea");
+                    helper.value = text;
+                    helper.style.position = "fixed";
+                    helper.style.opacity = "0";
+                    document.body.appendChild(helper);
+                    helper.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(helper);
+                }
+            }
+
+            function useHistoryEntry(entry) {
+                style.value = entry.style;
+                normalText.value = entry.normal;
+                styledText.value = entry.styled;
+
+                updateHint();
+                updateCounters();
+
+                saveStored("emoji-text:style", style.value);
+                showToast("Loaded into fields");
+            }
+
+            historyList.addEventListener("click", (event) => {
+                const button = event.target.closest("button[data-action]");
+
+                if (!button) return;
+
+                const item = button.closest(".history-item");
+                const entry = historyEntries[Number(item.dataset.index)];
+
+                if (!entry) return;
+
+                const action = button.dataset.action;
+
+                if (action === "copy") {
+                    writeClipboard(entry.styled).then(() => {
+                        showToast("Styled text copied");
+                    });
+                } else if (action === "use") {
+                    useHistoryEntry(entry);
+                } else if (action === "delete") {
+                    historyEntries.splice(item.dataset.index, 1);
+                    saveHistory();
+                    renderHistory();
+                }
+            });
+
+            clearHistory.addEventListener("click", () => {
+                historyEntries = [];
+                saveHistory();
+                renderHistory();
+                showToast("History cleared");
+            });
+
+            openHistory.addEventListener("click", () => {
+                renderHistory();
+                historyDialog.showModal();
+            });
+
+            closeHistory.addEventListener("click", () => {
+                historyDialog.close();
+            });
+
+            historyDialog.addEventListener("click", (event) => {
+                if (event.target === historyDialog) {
+                    historyDialog.close();
+                }
+            });
+
             function restoreState() {
                 const savedStyle = loadStored("emoji-text:style");
 
@@ -827,6 +1270,15 @@
 
                 showToast(`${fieldNames[id]} copied`);
 
+                if (id === "styledText") {
+                    addHistoryEntry({
+                        normal: normalText.value,
+                        styled: styledText.value,
+                        style: style.value,
+                        timestamp: Date.now(),
+                    });
+                }
+
                 return true;
             }
 
@@ -916,6 +1368,8 @@
             updateHint();
             updateCounters();
             updateShortcutHint();
+            loadHistory();
+            renderHistory();
         </script>
     </body>
 </html>

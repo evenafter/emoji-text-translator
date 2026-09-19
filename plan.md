@@ -40,7 +40,7 @@ Currently only 2 styles. Can add many more Unicode styles:
 
 ## Advanced Functionality
 * ✅ **Keyboard shortcuts**: Ctrl+Enter to copy styled text; Ctrl+⌘C copies the styled text (toast feedback).
-* **History**: Recent translations log. *Maybe overkill but nice.*
+* ✅ **History**: Recent translations log (saved on copy, deduped, persisted in `localStorage`).
 * **Share URL**: Encode text in URL query parameters for easy sharing.
 
 ---
