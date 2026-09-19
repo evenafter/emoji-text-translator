@@ -87,6 +87,7 @@
             }
 
             .translator {
+                position: relative;
                 width: 100%;
                 max-width: 760px;
                 padding: 28px;
@@ -147,10 +148,45 @@
                 line-height: 1.5;
             }
 
-            .selector-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 16px;
+            .theme-toggle {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                width: 38px;
+                height: 38px;
+
+                border: 1px solid var(--border);
+                border-radius: 50%;
+
+                background: var(--input);
+                color: var(--text);
+
+                font: inherit;
+                font-size: 18px;
+                line-height: 1;
+
+                cursor: pointer;
+                outline: none;
+
+                transition:
+                    background-color 0.2s ease,
+                    border-color 0.2s ease,
+                    box-shadow 0.15s ease;
+            }
+
+            .theme-toggle:hover {
+                border-color: var(--muted);
+            }
+
+            .theme-toggle:focus {
+                border-color: var(--gradient-from);
+                box-shadow: 0 0 0 3px
+                    color-mix(in srgb, var(--gradient-from) 18%, transparent);
             }
 
             .style-selector {
@@ -381,16 +417,20 @@
                 textarea {
                     min-height: 150px;
                 }
-
-                .selector-grid {
-                    grid-template-columns: 1fr;
-                }
             }
         </style>
     </head>
 
     <body>
         <main class="translator">
+            <button
+                class="theme-toggle"
+                id="themeToggle"
+                type="button"
+                aria-label="Switch theme (currently System)"
+                title="Theme: System. Click to switch to the next theme."
+            ></button>
+
             <h1>Emoji Text Translator</h1>
 
             <p class="description">
@@ -399,28 +439,14 @@
             </p>
 
             <div class="style-selector">
-                <div class="selector-grid">
-                    <div>
-                        <label for="style">Text style</label>
+                <label for="style">Text style</label>
 
-                        <select id="style">
-                            <option value="squared">🅰 Squared Letters</option>
-                            <option value="double">𝔸 Double-Struck</option>
-                        </select>
+                <select id="style">
+                    <option value="squared">🅰 Squared Letters</option>
+                    <option value="double">𝔸 Double-Struck</option>
+                </select>
 
-                        <div class="hint" id="styleHint"></div>
-                    </div>
-
-                    <div>
-                        <label for="theme">Theme</label>
-
-                        <select id="theme">
-                            <option value="system">🌗 System</option>
-                            <option value="light">☀️ Light</option>
-                            <option value="dark">🌙 Dark</option>
-                        </select>
-                    </div>
-                </div>
+                <div class="hint" id="styleHint"></div>
             </div>
 
             <div class="field">
@@ -489,7 +515,7 @@
             const styleHint = document.getElementById("styleHint");
             const normalCounters = document.getElementById("normalCounters");
             const styledCounters = document.getElementById("styledCounters");
-            const theme = document.getElementById("theme");
+            const themeToggle = document.getElementById("themeToggle");
             const toast = document.getElementById("toast");
             const shortcutHint = document.getElementById("shortcutHint");
 
@@ -668,16 +694,13 @@
 
                 const savedTheme = loadStored("emoji-text:theme");
 
-                if (
-                    savedTheme &&
-                    [...theme.options].some(
-                        (option) => option.value === savedTheme,
-                    )
-                ) {
-                    theme.value = savedTheme;
-                }
+                currentMode =
+                    savedTheme && themeModes.includes(savedTheme)
+                        ? savedTheme
+                        : "system";
 
-                applyTheme();
+                applyTheme(currentMode);
+                renderThemeToggle(currentMode);
 
                 const savedText = loadStored("emoji-text:text");
 
@@ -826,17 +849,53 @@
                 copyField("styledText");
             });
 
-            function applyTheme() {
-                if (theme.value === "system") {
+            const themeModes = ["system", "light", "dark"];
+
+            const themeIcons = {
+                system: "🌗",
+                light: "☀️",
+                dark: "🌙",
+            };
+
+            const themeNames = {
+                system: "System",
+                light: "Light",
+                dark: "Dark",
+            };
+
+            let currentMode = "system";
+
+            function applyTheme(mode) {
+                if (mode === "system") {
                     delete document.documentElement.dataset.theme;
                 } else {
-                    document.documentElement.dataset.theme = theme.value;
+                    document.documentElement.dataset.theme = mode;
                 }
             }
 
-            theme.addEventListener("change", () => {
-                applyTheme();
-                saveStored("emoji-text:theme", theme.value);
+            function renderThemeToggle(mode) {
+                themeToggle.textContent = themeIcons[mode];
+
+                themeToggle.setAttribute(
+                    "aria-label",
+                    `Switch theme (currently ${themeNames[mode]})`,
+                );
+
+                themeToggle.title =
+                    "Theme: " +
+                    themeNames[mode] +
+                    ". Click to switch to the next theme.";
+            }
+
+            themeToggle.addEventListener("click", () => {
+                const nextIndex =
+                    (themeModes.indexOf(currentMode) + 1) % themeModes.length;
+
+                currentMode = themeModes[nextIndex];
+
+                applyTheme(currentMode);
+                saveStored("emoji-text:theme", currentMode);
+                renderThemeToggle(currentMode);
             });
 
             restoreState();

@@ -7,7 +7,7 @@
 * **Clear button**: Easy clearing for both input and output fields.
 * ✅ **Toast notifications**: Replace or complement button text swap for improved copy feedback.
 * **Focus visible states**: Enhanced visual indicators for keyboard navigation.
-* ✅ **Dark/light theme toggle**: Manual override in addition to `prefers-color-scheme`, as a System/Light/Dark select persisted in `localStorage`.
+* ✅ **Dark/light theme toggle**: Manual override in addition to `prefers-color-scheme`, cycled via a toggle button (System/Light/Dark) persisted in `localStorage`.
 * ✅ **Title styling**: Nice gradient text on the main title.
 * **Copy feedback**: Animated confirmation when text is copied.
 
