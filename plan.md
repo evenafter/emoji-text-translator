@@ -49,7 +49,7 @@ Currently only 2 styles. Can add many more Unicode styles:
 
 ## SEO & Metadata
 * **Favicon**: Inline SVG data URI (no external dependencies).
-* **Meta tags**: Add meta description, Open Graph tags, and `theme-color`.
+* ✅ **Meta tags**: Add meta description, Open Graph tags, and `theme-color`.
 
 ## Code & Performance
 * **Noscript fallback**: Add a message for users with disabled JavaScript.
